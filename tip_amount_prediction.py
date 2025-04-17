@@ -4,9 +4,10 @@ from sklearn.metrics import (
     mean_squared_error,
     mean_absolute_error,
     r2_score,
-    f1_score,
 )
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.linear_model import LinearRegression
+from xgboost import XGBRegressor
 
 
 def tip_amount_prediction(df):
@@ -38,13 +39,19 @@ def tip_amount_prediction(df):
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
 
-    # Try Random Forest Regressor
-    rf = RandomForestRegressor()
-    rf.fit(X_train_scaled, y_train)
-    y_pred_rf = rf.predict(X_test_scaled)
+    # Models
+    models = {
+        "Random Forest": RandomForestRegressor(),
+        "Linear Regression": LinearRegression(),
+        "Gradient Boosting": GradientBoostingRegressor(),
+        "XGBoost": XGBRegressor(),
+    }
 
-    # Metrics
-    print("Random Forest:")
-    print("MAE:", mean_absolute_error(y_test, y_pred_rf))
-    print("RMSE:", mean_squared_error(y_test, y_pred_rf))
-    print("R²:", r2_score(y_test, y_pred_rf))
+    for name, model in models.items():
+        model.fit(X_train_scaled, y_train)
+        y_pred = model.predict(X_test_scaled)
+
+        print(f"\n{name}")
+        print("MAE:", mean_absolute_error(y_test, y_pred))
+        print("RMSE:", mean_squared_error(y_test, y_pred))  # RMSE
+        print("R²:", r2_score(y_test, y_pred))
